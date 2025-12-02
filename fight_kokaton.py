@@ -3,6 +3,7 @@ import random
 import sys
 import time
 import pygame as pg
+import math
 
 
 WIDTH = 1100  # ゲームウィンドウの幅
@@ -56,6 +57,7 @@ class Bird:
         self.img = __class__.imgs[(+5, 0)]
         self.rct: pg.Rect = self.img.get_rect()
         self.rct.center = xy
+        self.dire=(5,0)
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -83,6 +85,8 @@ class Bird:
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.img = __class__.imgs[tuple(sum_mv)]
         screen.blit(self.img, self.rct)
+        if sum_mv!=[0,0]:
+            self.dire=tuple(sum_mv)
 
 
 class Beam:
@@ -95,10 +99,12 @@ class Beam:
         引数 bird：ビームを放つこうかとん（Birdインスタンス）
         """
         self.img = pg.image.load(f"fig/beam.png")
+        self.vx, self.vy = bird.dire[0], bird.dire[1]
         self.rct = self.img.get_rect()
-        self.rct.centery = bird.rct.centery
-        self.rct.right = bird.rct.right
-        self.vx, self.vy = +5, 0
+        self.rct.centerx = bird.rct.centerx + bird.rct.width * self.vx / 5
+        self.rct.centery = bird.rct.centery + bird.rct.height * self.vy / 5
+        self.s = math.atan2(-self.vy, self.vx)
+        self.img = pg.transform.rotozoom(self.img, math.degrees(self.s), 1.0)
 
     def update(self, screen: pg.Surface):
         """
@@ -215,8 +221,8 @@ def main():
                     return
                 
         for i,bomb in enumerate(bombs):
-            if bomb is not None:
-                for j,beam in enumerate(beams):
+            for j,beam in enumerate(beams):
+                if bombs[i] is not None: 
                     if beam is not None:
                         if beam.rct.colliderect(bomb.rct):
                             # ビームが爆弾に当たったら爆弾を消す
@@ -225,6 +231,7 @@ def main():
                             beams[j] = None 
                             bird.change_img(6, screen)  # こうかとん画像を切り替え
                             score.score += 1 
+                            pg.display.update()
                 beams = [beam for beam in beams if beam is not None]  # Noneのビームをリストから削除
         bombs = [bomb for bomb in bombs if bomb is not None]  # Noneの爆弾をリストから削除
         explosion = [explosion for explosion in Explosions if explosion.life > 0]  # 爆発エフェクトの寿命が尽きたものをリストから削除
