@@ -80,10 +80,8 @@ class Bird:
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
         self.rct.move_ip(sum_mv)
-        if check_bound(self.rct) != (True, True):
-            self.rct.move_ip(-sum_mv[0], -sum_mv[1])
-        if not (sum_mv[0] == 0 and sum_mv[1] == 0):
-            self.img = __class__.imgs[tuple(sum_mv)]
+        if check_bound(self.rct) != (True, True):self.rct.move_ip(-sum_mv[0], -sum_mv[1])
+        if not (sum_mv[0] == 0 and sum_mv[1] == 0):self.img = __class__.imgs[tuple(sum_mv)]
         screen.blit(self.img, self.rct)
         if sum_mv!=[0,0]:
             self.dire=tuple(sum_mv)
@@ -230,7 +228,7 @@ def main():
                             bombs[i] = None
                             beams[j] = None 
                             bird.change_img(6, screen)  # こうかとん画像を切り替え
-                            score.score += 1 
+                            score.score += 1
                             pg.display.update()
                 beams = [beam for beam in beams if beam is not None]  # Noneのビームをリストから削除
         bombs = [bomb for bomb in bombs if bomb is not None]  # Noneの爆弾をリストから削除
@@ -242,8 +240,6 @@ def main():
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         score.update(screen)
-        #if beam is not None:beam.update(screen)   
-        #if bomb is not None:bomb.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
